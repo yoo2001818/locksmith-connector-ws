@@ -37,8 +37,9 @@ export default class WebSocketServerConnector {
     this.clients[clientId].send(JSON.stringify(data));
   }
   disconnect(clientId) {
+    if (this.clients[clientId] == null) return;
     this.clients[clientId].close();
-    this.handleDisconnect(clientId);
+    this.clients[clientId] = undefined;
   }
   error(data, clientId) {
     // TODO Error handler
@@ -87,6 +88,7 @@ export default class WebSocketServerConnector {
     this.synchronizer.handleConnect(null, clientId);
   }
   handleDisconnect(clientId) {
+    if (this.clients[clientId] == null) return;
     this.synchronizer.handleDisconnect(clientId);
   }
 }

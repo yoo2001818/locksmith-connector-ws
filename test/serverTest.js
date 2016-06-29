@@ -16,7 +16,7 @@ let synchronizer = new Synchronizer(machine, connector, {
   dynamicPushWait: 100,
   dynamicTickWait: 100,
   fixedTick: 1000,
-  fixedBuffer: 1,
+  fixedBuffer: 0,
   disconnectWait: 10000,
   freezeWait: 2000
 });

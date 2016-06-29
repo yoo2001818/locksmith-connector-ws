@@ -73,10 +73,10 @@ export default class WebSocketServerConnector {
     if (data == null) return;
     switch (data.type) {
     case 'push':
-      this.synchronizer.handlePush(data, clientId);
+      this.synchronizer.handlePush(data.data, clientId);
       break;
     case 'ack':
-      this.synchronizer.handleAck(data, clientId);
+      this.synchronizer.handleAck(data.data, clientId);
       break;
     }
   }

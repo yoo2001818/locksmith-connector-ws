@@ -75,18 +75,21 @@ export default class WebSocketClientConnector {
   start() {
     this.connect();
   }
+  stop() {
+    this.disconnect();
+  }
   handleMessage(string) {
     let data = parseJSON(string);
     if (data == null) return;
     switch (data.type) {
     case 'push':
-      this.synchronizer.handlePush(data, 0);
+      this.synchronizer.handlePush(data.data, 0);
       break;
     case 'ack':
-      this.synchronizer.handleAck(data, 0);
+      this.synchronizer.handleAck(data.data, 0);
       break;
     case 'connect':
-      this.synchronizer.handleConnect(data, 0);
+      this.synchronizer.handleConnect(data.data, 0);
       break;
     }
   }

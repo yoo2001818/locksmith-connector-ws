@@ -1,4 +1,4 @@
-import Synchronizer from 'locksmith';
+import { HostSynchronizer } from 'locksmith';
 import readline from 'readline';
 
 import WebSocketServerConnector from '../src/webSocketServerConnector';
@@ -11,7 +11,7 @@ let connector = new WebSocketServerConnector({
   port: 23482
 });
 
-let synchronizer = new Synchronizer(machine, connector, {
+let synchronizer = new HostSynchronizer(machine, connector, {
   dynamic: true,
   dynamicPushWait: 100,
   dynamicTickWait: 100,
@@ -22,22 +22,39 @@ let synchronizer = new Synchronizer(machine, connector, {
 });
 connector.synchronizer = synchronizer;
 connector.start();
-synchronizer.host = true;
 synchronizer.start();
+
+synchronizer.on('connect', clientId => {
+  console.log('Client ' + clientId + ' connected');
+});
+synchronizer.on('disconnect', clientId => {
+  console.log('Client ' + clientId + ' disconnected');
+});
+synchronizer.on('freeze', () => {
+  console.log('Synchronizer frozen');
+});
+synchronizer.on('unfreeze', () => {
+  console.log('Synchronizer unfrozen');
+});
+synchronizer.on('error', error => {
+  console.log(error);
+});
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-const read = (msg = '> ') => {
-  rl.question(msg, (answer) => {
+const read = () => {
+  rl.question(synchronizer.rtt + 'ms > ', (answer) => {
+    let action;
     if (isNaN(parseFloat(answer))) {
-      synchronizer.push(answer);
+      action = { data: answer };
     } else {
-      synchronizer.push(parseFloat(answer));
+      action = { data: parseFloat(answer) };
     }
-    read();
+    synchronizer.push(action, true)
+    .then(() => read(), () => read());
   });
 };
 

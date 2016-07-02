@@ -19,6 +19,7 @@ export default class WebSocketClientConnector {
     this.protocols = protocols;
     this.options = options;
     this.client = null;
+    this.clientId = 1;
   }
   setSynchronizer(synchronizer) {
     this.synchronizer = synchronizer;
@@ -28,7 +29,7 @@ export default class WebSocketClientConnector {
     return 0;
   }
   getClientId() {
-    return 1;
+    return this.clientId;
   }
   push(data) {
     this.sendData({ type: 'push', data });
@@ -63,13 +64,8 @@ export default class WebSocketClientConnector {
     this.client.close();
     this.handleDisconnect();
   }
-  error(data) {
-    // TODO Error handler
-    if (data instanceof Error) {
-      console.log(data.stack);
-    } else {
-      console.log(data);
-    }
+  error() {
+    // Well, nothing to do here.
     this.disconnect();
   }
   start() {
@@ -89,12 +85,15 @@ export default class WebSocketClientConnector {
       this.synchronizer.handleAck(data.data, 0);
       break;
     case 'connect':
+      this.clientId = data.data.id;
       this.synchronizer.handleConnect(data.data, 0);
       break;
+    case 'error':
+      this.synchronizer.handleError(data.data, 0);
     }
   }
   handleError(event) {
-    this.error(event);
+    this.synchronizer.handleError(event, 0);
   }
   handleDisconnect() {
     this.synchronizer.handleDisconnect(0);

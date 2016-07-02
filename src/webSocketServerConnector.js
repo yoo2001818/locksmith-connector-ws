@@ -42,13 +42,8 @@ export default class WebSocketServerConnector {
     this.clients[clientId] = undefined;
   }
   error(data, clientId) {
-    // TODO Error handler
-    if (data instanceof Error) {
-      console.log(data.stack);
-    } else {
-      console.log(data);
-    }
-    this.disconnect(clientId);
+    this.sendData({ type: 'error', data }, clientId);
+    setTimeout(() => this.disconnect(clientId), 0);
   }
   start() {
     this.server.on('connection', client => {
@@ -82,7 +77,7 @@ export default class WebSocketServerConnector {
     }
   }
   handleError(event, clientId) {
-    this.error(event, clientId);
+    this.synchronizer.handleError(event.message, clientId);
   }
   handleConnect(clientId) {
     this.synchronizer.handleConnect(null, clientId);

@@ -11,7 +11,9 @@ let connector = new DelayClientConnector('ws://localhost:23482');
 
 let synchronizer = new Synchronizer(machine, connector);
 connector.synchronizer = synchronizer;
-connector.start();
+connector.start({
+  name: 'Bananananananana'
+});
 
 synchronizer.on('connect', () => {
   console.log('Connected!');

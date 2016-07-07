@@ -21,10 +21,12 @@ let synchronizer = new HostSynchronizer(machine, connector, {
   freezeWait: 2000
 });
 connector.synchronizer = synchronizer;
-connector.start();
-synchronizer.start();
+connector.start({
+  name: 'Appppppppppple'
+});
 
 synchronizer.on('connect', clientId => {
+  console.log(synchronizer.clients[clientId]);
   console.log('Client ' + clientId + ' connected');
 });
 synchronizer.on('disconnect', clientId => {

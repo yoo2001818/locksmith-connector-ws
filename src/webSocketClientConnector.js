@@ -40,16 +40,16 @@ export default class WebSocketClientConnector {
   sendData(data) {
     this.client.send(JSON.stringify(data));
   }
-  connect() {
+  connect(metadata) {
     if (this.client &&
       (this.client.readyState === 0 || this.client.readyState === 1)
     ) {
       return;
     }
     this.client = new WebSocket(this.address, this.protocols, this.options);
-    // Open event should handled by server, as client can't do anything at
-    // that point.
-    this.client.onopen = () => {};
+    this.client.onopen = () => {
+      this.sendData({ type: 'connect', data: metadata });
+    };
     this.client.onmessage = event => {
       this.handleMessage(event.data);
     };
@@ -68,8 +68,8 @@ export default class WebSocketClientConnector {
     // Well, nothing to do here.
     this.disconnect();
   }
-  start() {
-    this.connect();
+  start(metadata) {
+    this.connect(metadata);
   }
   stop() {
     this.disconnect();

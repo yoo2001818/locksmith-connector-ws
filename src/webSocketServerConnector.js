@@ -45,7 +45,7 @@ export default class WebSocketServerConnector {
     this.sendData({ type: 'error', data }, clientId);
     setTimeout(() => this.disconnect(clientId), 0);
   }
-  start() {
+  start(metadata) {
     this.server.on('connection', client => {
       let clientId = this.clientIds ++;
       this.clients[clientId] = client;
@@ -58,8 +58,10 @@ export default class WebSocketServerConnector {
       client.onclose = () => {
         this.handleDisconnect(clientId);
       };
-      this.handleConnect(clientId);
+      // We don't have to send 'handshake header' packet, right?
+      // It's not really necessary...
     });
+    this.synchronizer.start(metadata);
   }
   stop() {
     this.server.close();
@@ -74,13 +76,13 @@ export default class WebSocketServerConnector {
     case 'ack':
       this.synchronizer.handleAck(data.data, clientId);
       break;
+    case 'connect':
+      this.synchronizer.handleConnect(data.data, clientId);
+      break;
     }
   }
   handleError(event, clientId) {
     this.synchronizer.handleError(event.message, clientId);
-  }
-  handleConnect(clientId) {
-    this.synchronizer.handleConnect(null, clientId);
   }
   handleDisconnect(clientId) {
     if (this.clients[clientId] == null) return;

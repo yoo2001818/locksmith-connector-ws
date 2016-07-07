@@ -11,12 +11,12 @@ import { WebSocketServerConnector } from 'locksmith-connector-ws';
 let connector = new WebSocketServerConnector({
   port: 23482
 });
-connector.start();
+connector.start('metadata');
 ```
 
 ### Client
 ```js
 import { WebSocketClientConnector } from 'locksmith-connector-ws';
 let connector = new WebSocketClientConnector('ws://localhost:23482');
-connector.start();
+connector.start('metadata'); // Metadata can be any JSON object
 ```

@@ -37,6 +37,7 @@ export default class WebSocketServerConnector {
     this.sendData({ type: 'connect', data }, clientId);
   }
   sendData(data, clientId) {
+    if (this.clients[clientId] == null) return;
     this.clients[clientId].send(JSON.stringify(data));
   }
   disconnect(clientId) {

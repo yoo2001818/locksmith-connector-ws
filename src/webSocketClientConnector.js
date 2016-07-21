@@ -44,6 +44,7 @@ export default class WebSocketClientConnector {
     if (this.client &&
       (this.client.readyState === 0 || this.client.readyState === 1)
     ) {
+      this.sendData({ type: 'connect', data: metadata });
       return;
     }
     this.client = new WebSocket(this.address, this.protocols, this.options);

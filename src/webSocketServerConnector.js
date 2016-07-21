@@ -24,6 +24,9 @@ export default class WebSocketServerConnector {
   getClientId() {
     return 0;
   }
+  meta(data, clientId) {
+    this.sendData({ type: 'meta', data }, clientId);
+  }
   push(data, clientId) {
     this.sendData({ type: 'push', data }, clientId);
   }
@@ -70,6 +73,12 @@ export default class WebSocketServerConnector {
     let data = parseJSON(string);
     if (data == null) return;
     switch (data.type) {
+    case 'meta':
+      // :P?
+      if (this.synchronizer.handleMeta) {
+        this.synchronizer.handleMeta(data.data, 0);
+      }
+      break;
     case 'push':
       this.synchronizer.handlePush(data.data, clientId);
       break;

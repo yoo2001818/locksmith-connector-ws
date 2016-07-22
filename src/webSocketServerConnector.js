@@ -9,9 +9,13 @@ function parseJSON(string) {
 }
 
 export default class WebSocketServerConnector {
-  constructor(options) {
-    // TODO User may want to provide their own websocket instance
-    this.server = new WebSocketServer(options);
+  constructor(options, useOwn = false) {
+    // User may want to provide their own websocket instance
+    if (!useOwn) {
+      this.server = new WebSocketServer(options);
+    } else {
+      this.server = options;
+    }
     this.clients = {};
     this.clientIds = 1;
   }
@@ -49,26 +53,29 @@ export default class WebSocketServerConnector {
     this.sendData({ type: 'error', data }, clientId);
     setTimeout(() => this.disconnect(clientId), 0);
   }
-  start(metadata) {
-    this.server.on('connection', client => {
-      let clientId = this.clientIds ++;
-      this.clients[clientId] = client;
-      client.onmessage = event => {
-        this.handleMessage(event.data, clientId);
-      };
-      client.onerror = event => {
-        this.handleError(event, clientId);
-      };
-      client.onclose = () => {
-        this.handleDisconnect(clientId);
-      };
-      // We don't have to send 'handshake header' packet, right?
-      // It's not really necessary...
-    });
+  start(metadata, noRegister = false) {
+    if (!noRegister) {
+      this.server.on('connection', this.handleConnect.bind(this));
+    }
     this.synchronizer.start(metadata);
   }
   stop() {
-    this.server.close();
+    if (this.server) this.server.close();
+  }
+  handleConnect(client) {
+    let clientId = this.clientIds ++;
+    this.clients[clientId] = client;
+    client.onmessage = event => {
+      this.handleMessage(event.data, clientId);
+    };
+    client.onerror = event => {
+      this.handleError(event, clientId);
+    };
+    client.onclose = () => {
+      this.handleDisconnect(clientId);
+    };
+    // We don't have to send 'handshake header' packet, right?
+    // It's not really necessary...
   }
   handleMessage(string, clientId) {
     let data = parseJSON(string);

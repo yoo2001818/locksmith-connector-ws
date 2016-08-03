@@ -42,10 +42,12 @@ export default class WebSocketServerConnector {
   }
   sendData(data, clientId) {
     if (this.clients[clientId] == null) return;
+    if (this.clients[clientId].readyState !== 1) return;
     this.clients[clientId].send(JSON.stringify(data));
   }
   disconnect(clientId) {
     if (this.clients[clientId] == null) return;
+    if (this.clients[clientId].readyState !== 1) return;
     this.clients[clientId].close();
     this.clients[clientId] = undefined;
   }

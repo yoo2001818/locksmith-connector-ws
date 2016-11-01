@@ -1,6 +1,6 @@
 {
   "name": "locksmith-connector-ws",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "WebSocket connector for locksmith",
   "main": "lib/index.js",
   "scripts": {

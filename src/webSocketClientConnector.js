@@ -49,9 +49,7 @@ export default class WebSocketClientConnector {
     this.client.onclose = event => {
       this.handleDisconnect(event);
     };
-    if (this.client &&
-      (this.client.readyState === 0 || this.client.readyState === 1)
-    ) {
+    if (this.client && this.client.readyState === 1) {
       this.sendData({ type: 'connect', data: metadata });
       return;
     }

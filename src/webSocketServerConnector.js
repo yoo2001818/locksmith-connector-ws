@@ -18,6 +18,7 @@ export default class WebSocketServerConnector {
     }
     this.clients = {};
     this.clientIds = 1;
+    this.replacer = null;
   }
   setSynchronizer(synchronizer) {
     this.synchronizer = synchronizer;
@@ -43,7 +44,7 @@ export default class WebSocketServerConnector {
   sendData(data, clientId) {
     if (this.clients[clientId] == null) return;
     if (this.clients[clientId].readyState !== 1) return;
-    this.clients[clientId].send(JSON.stringify(data));
+    this.clients[clientId].send(JSON.stringify(data, this.replacer));
   }
   disconnect(clientId) {
     if (this.clients[clientId] == null) return;

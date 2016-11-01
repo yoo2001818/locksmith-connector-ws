@@ -1,9 +1,4 @@
 // Use web browser's native WebSocket if possible.
-let WebSocket = WebSocket;
-
-if (typeof WebSocket === 'undefined') {
-  WebSocket = require('ws');
-}
 
 function parseJSON(string) {
   try {
@@ -14,12 +9,10 @@ function parseJSON(string) {
 }
 
 export default class WebSocketClientConnector {
-  constructor(address, protocols, options) {
-    this.address = address;
-    this.protocols = protocols;
-    this.options = options;
-    this.client = null;
+  constructor(client) {
+    this.client = client;
     this.clientId = 1;
+    this.replacer = null;
   }
   setSynchronizer(synchronizer) {
     this.synchronizer = synchronizer;
@@ -41,16 +34,9 @@ export default class WebSocketClientConnector {
     this.sendData({ type: 'ack', data });
   }
   sendData(data) {
-    this.client.send(JSON.stringify(data));
+    this.client.send(JSON.stringify(data, this.replacer));
   }
   connect(metadata) {
-    if (this.client &&
-      (this.client.readyState === 0 || this.client.readyState === 1)
-    ) {
-      this.sendData({ type: 'connect', data: metadata });
-      return;
-    }
-    this.client = new WebSocket(this.address, this.protocols, this.options);
     this.client.onopen = () => {
       this.sendData({ type: 'connect', data: metadata });
     };
@@ -63,6 +49,12 @@ export default class WebSocketClientConnector {
     this.client.onclose = event => {
       this.handleDisconnect(event);
     };
+    if (this.client &&
+      (this.client.readyState === 0 || this.client.readyState === 1)
+    ) {
+      this.sendData({ type: 'connect', data: metadata });
+      return;
+    }
   }
   disconnect() {
     this.client.close();
